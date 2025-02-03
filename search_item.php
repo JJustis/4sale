@@ -5,7 +5,6 @@ require_once 'config.php';
 header('Content-Type: application/json');
 
 try {
-    error_log("POST data: " . print_r($_POST, true));
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         throw new Exception('Invalid request method');
     }
@@ -16,9 +15,7 @@ try {
         throw new Exception('SKU is required');
     }
 
-    error_log("Searching for SKU: " . $sku);
-
-    // First check listings - now including quantity
+    // First check listings - now including image
     $listings_query = "SELECT l.*, u.username as seller_username 
                       FROM listings l 
                       JOIN users u ON l.seller_id = u.id 
@@ -38,7 +35,7 @@ try {
     $listings_result = $listings_stmt->get_result();
     $listings_stmt->close();
 
-    // Then check items - now including quantity
+    // Check items - now including image
     $items_query = "SELECT * FROM items WHERE sku = ?";
     $items_stmt = $conn->prepare($items_query);
     
@@ -58,7 +55,7 @@ try {
     // Combine results
     $results = [];
 
-    // Add listings results with quantity
+    // Add listings results with image
     while ($row = $listings_result->fetch_assoc()) {
         $results[] = [
             'type' => 'listing',
@@ -66,13 +63,14 @@ try {
             'description' => $row['description'],
             'price' => $row['price'],
             'sku' => $row['sku'],
-            'quantity' => $row['quantity'],  // Added quantity field
+            'quantity' => $row['quantity'],
             'paypal_email' => $row['paypal_email'],
-            'seller_username' => $row['seller_username']
+            'seller_username' => $row['seller_username'],
+            'image' => $row['image'] ?? '' // Add image field
         ];
     }
 
-    // Add items results with quantity
+    // Add items results with image
     while ($row = $items_result->fetch_assoc()) {
         $results[] = [
             'type' => 'item',
@@ -80,32 +78,26 @@ try {
             'description' => $row['description'],
             'price' => $row['price'],
             'sku' => $row['sku'],
-            'quantity' => $row['quantity'],  // Added quantity field
-            'paypal_email' => $row['paypal_email']
+            'quantity' => $row['quantity'],
+            'paypal_email' => $row['paypal_email'],
+            'image' => $row['image'] ?? '' // Add image field
         ];
     }
 
     if (empty($results)) {
         throw new Exception('No items found with this SKU');
     }
-    error_log("Results data: " . print_r($results, true));
+
     echo json_encode([
         'success' => true,
         'results' => $results
     ]);
 
 } catch (Exception $e) {
-    error_log("Search error: " . $e->getMessage());
-    
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage(),
-        'debug' => [
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ]
+        'message' => $e->getMessage()
     ]);
 } finally {
     if (isset($conn)) {

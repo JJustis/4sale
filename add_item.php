@@ -23,6 +23,24 @@ try {
     $paypal_email = trim($_POST['paypal_email']);
     $quantity = intval($_POST['quantity']); // New quantity field
     $user_id = $_SESSION['user_id'];
+$image_url = '';
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $upload_dir = 'uploads/';
+        // Create uploads directory if it doesn't exist
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $file_name = uniqid() . '_' . basename($_FILES['image']['name']);
+        $upload_path = $upload_dir . $file_name;
+        
+        // Move uploaded file
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+            $image_url = $upload_path;
+        } else {
+            throw new Exception('Failed to upload image');
+        }
+    }
 
     // Validation
     if (empty($title) || empty($sku) || empty($paypal_email)) {
@@ -54,9 +72,9 @@ try {
     $stmt = $conn->prepare("
         INSERT INTO items (
             id, user_id, title, description, 
-            price, sku, paypal_email, quantity
+            price, sku, paypal_email, quantity, image
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     if (!$stmt) {
@@ -64,9 +82,9 @@ try {
     }
 
     $stmt->bind_param(
-        "iissdssi", 
+        "iissdssis", 
         $next_id, $user_id, $title, $description, 
-        $price, $sku, $paypal_email, $quantity
+        $price, $sku, $paypal_email, $quantity, $image_url
     );
 
     if ($stmt->execute()) {

@@ -160,6 +160,11 @@ session_start();
                         <input type="text" name="title" required 
                                class="w-full p-2 border rounded">
                     </div>
+					    <div>
+        <label class="block text-gray-700">Item Image</label>
+        <input type="file" name="image" accept="image/*" 
+               class="w-full p-2 border rounded">
+    </div>
                     <div>
                         <label class="block text-gray-700">Description</label>
                         <textarea name="description" class="w-full p-2 border rounded"></textarea>
@@ -503,30 +508,29 @@ function searchItem(sku) {
             throw new Error('Invalid server response');
         }
     })
-    .then(data => {
-        console.log('Parsed data:', data);
-        
+     .then(data => {
         if (!data.success) {
             throw new Error(data.message || 'Items not found');
         }
 
         const searchResult = document.getElementById('searchResult');
         searchResult.classList.remove('hidden');
+        searchResult.innerHTML = ''; // Clear previous results
         
-        // Clear previous results
-        searchResult.innerHTML = '';
-        
-        // Display each result
         data.results.forEach((item, index) => {
-            // Ensure price is a clean number with exactly 2 decimal places
             const price = (Math.round(parseFloat(item.price) * 100) / 100).toFixed(2);
             
             const resultDiv = document.createElement('div');
             resultDiv.className = 'mb-4 p-4 border rounded';
             
-           // Update the search result display in the searchItem function
-// In the searchItem function, update the form HTML to:
-resultDiv.innerHTML = `
+            // Add image display with fallback
+            const imageHtml = item.image 
+                ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" 
+                     class="w-full h-48 object-cover rounded mb-4">`
+                : '<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 rounded mb-4">No Image</div>';
+            
+            resultDiv.innerHTML = `
+                ${imageHtml}
     <h3 class="font-bold text-lg">${escapeHtml(item.title)}</h3>
     <p class="text-gray-600">${escapeHtml(item.description)}</p>
     <p class="text-lg font-bold mt-2">$${price}</p>
@@ -563,9 +567,10 @@ resultDiv.innerHTML = `
             </select>
         </div>
         
-        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowLG.gif" 
+        <button class="btn"><input type="image" src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-medium.png
+" 
                border="0" name="submit" 
-               alt="PayPal - The safer, easier way to pay online!">
+               alt="PayPal - The safer, easier way to pay online!"></button>
     </form>
 `;
             

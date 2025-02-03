@@ -92,12 +92,12 @@ try {
         ]
     ]);
 } finally {
-    if (isset($check_stmt) && $check_stmt !== false) {
-        $check_stmt->close();
-    }
-    if (isset($insert_stmt) && $insert_stmt !== false) {
-        $insert_stmt->close();
-    }
+   // if (isset($check_stmt) && $check_stmt !== false) {
+  //      $check_stmt->close();
+  //  }
+   // if (isset($insert_stmt) && $insert_stmt !== false) {
+  //      $insert_stmt->close();
+  //  }
     if (isset($conn) && !$conn->connect_error) {
         $conn->close();
     }
