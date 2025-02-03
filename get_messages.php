@@ -1,4 +1,6 @@
 <?php
+session_start();
+ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 // get_messages.php
 require_once 'config.php';
 
