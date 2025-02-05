@@ -538,24 +538,22 @@ function searchItem(sku) {
     <p class="text-sm text-gray-500">Available: ${escapeHtml(item.quantity)}</p>
     
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" class="mt-4">
-        <!-- Essential PayPal fields -->
-        <input type="hidden" name="cmd" value="_xclick">
-        <input type="hidden" name="business" value="${escapeHtml(item.paypal_email)}">
-        <input type="hidden" name="item_name" value="${escapeHtml(item.title)}">
-        <input type="hidden" name="amount" value="${price}">
-        <input type="hidden" name="currency_code" value="USD">
-        
-        <!-- Unique transaction identifiers -->
-        <input type="hidden" name="item_number" value="${escapeHtml(item.sku)}">
-        <input type="hidden" name="custom" value="${escapeHtml(item.sku)}">
-        
-        <!-- Basic configuration -->
-        <input type="hidden" name="no_shipping" value="1">
-        
-        <!-- HTTP URLs -->
-        <input type="hidden" name="return" value="http://jcmc.serveminecraft.net/4sale/success.php">
-        <input type="hidden" name="cancel_return" value="http://jcmc.serveminecraft.net/4sale/cancel.php">
-        <input type="hidden" name="notify_url" value="http://jcmc.serveminecraft.net/4sale/ipn_handler.php">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="${escapeHtml(item.paypal_email)}">
+    <input type="hidden" name="item_name" value="${escapeHtml(item.title)}">
+    <input type="hidden" name="amount" value="${price}">
+    <input type="hidden" name="currency_code" value="USD">
+    <input type="hidden" name="item_number" value="${escapeHtml(item.sku)}">
+    <input type="hidden" name="custom" value="${escapeHtml(item.sku)}">
+    
+    <!-- Request shipping address -->
+    <input type="hidden" name="no_shipping" value="2">
+    <input type="hidden" name="address_override" value="0">
+    
+    <!-- Return and IPN URLs -->
+    <input type="hidden" name="return" value="http://jcmc.serveminecraft.net/4sale/success.php">
+    <input type="hidden" name="cancel_return" value="http://jcmc.serveminecraft.net/4sale/cancel.php">
+    <input type="hidden" name="notify_url" value="http://jcmc.serveminecraft.net/4sale/ipn_handler.php">
         
         <!-- Quantity selector -->
         <div class="flex items-center gap-4 mb-4">

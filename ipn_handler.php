@@ -15,19 +15,31 @@ function logIPN($message) {
 $paypal_ipn = new PaypalIPN();
 
 // Read POST data
-$raw_post_data = file_get_contents('php://input');
+
 logIPN('Raw IPN: ' . $raw_post_data);
 
+$raw_post_data = file_get_contents('php://input');
 $raw_post_array = explode('&', $raw_post_data);
 $myPost = array();
-
 foreach ($raw_post_array as $keyval) {
-    $keyval = explode('=', $keyval, 2);
-    if (count($keyval) == 2) {
+    $keyval = explode('=', $keyval);
+    if (count($keyval) == 2)
         $myPost[$keyval[0]] = urldecode($keyval[1]);
-    }
 }
-
+if ($myPost['payment_status'] == 'Completed') {
+    $purchase_details = array(
+        'payer_email' => $myPost['payer_email'],
+        'address_name' => $myPost['address_name'],
+        'address_street' => $myPost['address_street'],
+        'address_city' => $myPost['address_city'],
+        'address_state' => $myPost['address_state'],
+        'address_zip' => $myPost['address_zip'],
+        'address_country' => $myPost['address_country'],
+        'quantity' => $myPost['quantity']
+    );
+    
+    sendPurchaseMessage($conn, $myPost['custom'], $purchase_details);
+}
 // Build verification string
 $req = 'cmd=_notify-validate';
 foreach ($myPost as $key => $value) {
